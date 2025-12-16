@@ -68,6 +68,7 @@ type Annotation struct {
 	Details         string
 	TextColor       string
 	BackgroundColor string
+	_               struct{} // disallow positional literals, for extensibility
 }
 
 // AddAnnotations adds extra annotations to a visualization.

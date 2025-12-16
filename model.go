@@ -20,7 +20,8 @@ type Operation struct {
 	Input    interface{}
 	Call     int64 // invocation timestamp
 	Output   interface{}
-	Return   int64 // response timestamp
+	Return   int64    // response timestamp
+	_        struct{} // disallow positional literals, for extensibility
 }
 
 // Interpreting the interval [Call, Return] as a closed interval is the only
@@ -64,6 +65,7 @@ type Event struct {
 	Kind     EventKind
 	Value    interface{}
 	Id       int
+	_        struct{} // disallow positional literals, for extensibility
 }
 
 // A Model is a sequential specification of a system.
@@ -112,6 +114,7 @@ type Model struct {
 	// example, "{'x' -> 'y', 'z' -> 'w'}". Can be omitted if you're not
 	// producing visualizations.
 	DescribeState func(state interface{}) string
+	_             struct{} // disallow positional literals, for extensibility
 }
 
 // A NondeterministicModel is a nondeterministic sequential specification of a
@@ -150,6 +153,7 @@ type NondeterministicModel struct {
 	// example, "{'x' -> 'y', 'z' -> 'w'}". Can be omitted if you're not
 	// producing visualizations.
 	DescribeState func(state interface{}) string
+	_             struct{} // disallow positional literals, for extensibility
 }
 
 func merge(states []interface{}, eq func(state1, state2 interface{}) bool) []interface{} {

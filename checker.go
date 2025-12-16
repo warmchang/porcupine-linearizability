@@ -166,9 +166,9 @@ func renumber(events []Event) []Event {
 	id := 0
 	for _, v := range events {
 		if r, ok := m[v.Id]; ok {
-			e = append(e, Event{v.ClientId, v.Kind, v.Value, r})
+			e = append(e, Event{ClientId: v.ClientId, Kind: v.Kind, Value: v.Value, Id: r})
 		} else {
-			e = append(e, Event{v.ClientId, v.Kind, v.Value, id})
+			e = append(e, Event{ClientId: v.ClientId, Kind: v.Kind, Value: v.Value, Id: id})
 			m[v.Id] = id
 			id++
 		}

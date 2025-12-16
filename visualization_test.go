@@ -20,15 +20,15 @@ func visualizeTempFile(t *testing.T, model Model, info LinearizationInfo) {
 
 func TestVisualizationMultipleLengths(t *testing.T) {
 	ops := []Operation{
-		{0, kvInput{op: 0, key: "x"}, 0, kvOutput{"w"}, 100},
-		{1, kvInput{op: 1, key: "x", value: "y"}, 5, kvOutput{}, 10},
-		{2, kvInput{op: 1, key: "x", value: "z"}, 0, kvOutput{}, 10},
-		{1, kvInput{op: 0, key: "x"}, 20, kvOutput{"y"}, 30},
-		{1, kvInput{op: 1, key: "x", value: "w"}, 35, kvOutput{}, 45},
-		{5, kvInput{op: 0, key: "x"}, 25, kvOutput{"z"}, 35},
-		{3, kvInput{op: 0, key: "x"}, 30, kvOutput{"y"}, 40},
-		{4, kvInput{op: 0, key: "y"}, 50, kvOutput{"a"}, 90},
-		{2, kvInput{op: 1, key: "y", value: "a"}, 55, kvOutput{}, 85},
+		{ClientId: 0, Input: kvInput{op: 0, key: "x"}, Call: 0, Output: kvOutput{"w"}, Return: 100},
+		{ClientId: 1, Input: kvInput{op: 1, key: "x", value: "y"}, Call: 5, Output: kvOutput{}, Return: 10},
+		{ClientId: 2, Input: kvInput{op: 1, key: "x", value: "z"}, Call: 0, Output: kvOutput{}, Return: 10},
+		{ClientId: 1, Input: kvInput{op: 0, key: "x"}, Call: 20, Output: kvOutput{"y"}, Return: 30},
+		{ClientId: 1, Input: kvInput{op: 1, key: "x", value: "w"}, Call: 35, Output: kvOutput{}, Return: 45},
+		{ClientId: 5, Input: kvInput{op: 0, key: "x"}, Call: 25, Output: kvOutput{"z"}, Return: 35},
+		{ClientId: 3, Input: kvInput{op: 0, key: "x"}, Call: 30, Output: kvOutput{"y"}, Return: 40},
+		{ClientId: 4, Input: kvInput{op: 0, key: "y"}, Call: 50, Output: kvOutput{"a"}, Return: 90},
+		{ClientId: 2, Input: kvInput{op: 1, key: "y", value: "a"}, Call: 55, Output: kvOutput{}, Return: 85},
 	}
 	res, info := CheckOperationsVerbose(kvModel, ops, 0)
 	if res != Illegal {
@@ -131,15 +131,15 @@ func TestVisualizationLarge(t *testing.T) {
 func TestVisualizationAnnotations(t *testing.T) {
 	// base set of operations same as TestVisualizationMultipleLengths
 	ops := []Operation{
-		{0, kvInput{op: 0, key: "x"}, 0, kvOutput{"w"}, 100},
-		{1, kvInput{op: 1, key: "x", value: "y"}, 5, kvOutput{}, 10},
-		{2, kvInput{op: 1, key: "x", value: "z"}, 0, kvOutput{}, 10},
-		{1, kvInput{op: 0, key: "x"}, 20, kvOutput{"y"}, 30},
-		{1, kvInput{op: 1, key: "x", value: "w"}, 35, kvOutput{}, 45},
-		{5, kvInput{op: 0, key: "x"}, 25, kvOutput{"z"}, 35},
-		{3, kvInput{op: 0, key: "x"}, 30, kvOutput{"y"}, 40},
-		{4, kvInput{op: 0, key: "y"}, 50, kvOutput{"a"}, 90},
-		{2, kvInput{op: 1, key: "y", value: "a"}, 55, kvOutput{}, 85},
+		{ClientId: 0, Input: kvInput{op: 0, key: "x"}, Call: 0, Output: kvOutput{"w"}, Return: 100},
+		{ClientId: 1, Input: kvInput{op: 1, key: "x", value: "y"}, Call: 5, Output: kvOutput{}, Return: 10},
+		{ClientId: 2, Input: kvInput{op: 1, key: "x", value: "z"}, Call: 0, Output: kvOutput{}, Return: 10},
+		{ClientId: 1, Input: kvInput{op: 0, key: "x"}, Call: 20, Output: kvOutput{"y"}, Return: 30},
+		{ClientId: 1, Input: kvInput{op: 1, key: "x", value: "w"}, Call: 35, Output: kvOutput{}, Return: 45},
+		{ClientId: 5, Input: kvInput{op: 0, key: "x"}, Call: 25, Output: kvOutput{"z"}, Return: 35},
+		{ClientId: 3, Input: kvInput{op: 0, key: "x"}, Call: 30, Output: kvOutput{"y"}, Return: 40},
+		{ClientId: 4, Input: kvInput{op: 0, key: "y"}, Call: 50, Output: kvOutput{"a"}, Return: 90},
+		{ClientId: 2, Input: kvInput{op: 1, key: "y", value: "a"}, Call: 55, Output: kvOutput{}, Return: 85},
 	}
 	res, info := CheckOperationsVerbose(kvModel, ops, 0)
 	annotations := []Annotation{
@@ -166,8 +166,8 @@ func TestVisualizationAnnotations(t *testing.T) {
 
 func TestVisualizePointInTimeAnnotationsEnd(t *testing.T) {
 	ops := []Operation{
-		{0, kvInput{op: 0, key: "x"}, 0, kvOutput{"w"}, 100},
-		{1, kvInput{op: 1, key: "x", value: "y"}, 50, kvOutput{}, 60},
+		{ClientId: 0, Input: kvInput{op: 0, key: "x"}, Call: 0, Output: kvOutput{"w"}, Return: 100},
+		{ClientId: 1, Input: kvInput{op: 1, key: "x", value: "y"}, Call: 50, Output: kvOutput{}, Return: 60},
 	}
 	res, info := CheckOperationsVerbose(kvModel, ops, 0)
 	if res != Illegal {
@@ -186,8 +186,8 @@ func TestVisualizePointInTimeAnnotationsEnd(t *testing.T) {
 
 func TestVisualizeMatchingStartEnd(t *testing.T) {
 	ops := []Operation{
-		{0, kvInput{op: 0, key: "x"}, 0, kvOutput{"w"}, 50},
-		{1, kvInput{op: 1, key: "x", value: "y"}, 50, kvOutput{}, 80},
+		{ClientId: 0, Input: kvInput{op: 0, key: "x"}, Call: 0, Output: kvOutput{"w"}, Return: 50},
+		{ClientId: 1, Input: kvInput{op: 1, key: "x", value: "y"}, Call: 50, Output: kvOutput{}, Return: 80},
 	}
 	res, info := CheckOperationsVerbose(kvModel, ops, 0)
 	if res != Illegal {

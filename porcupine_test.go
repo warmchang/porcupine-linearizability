@@ -50,9 +50,9 @@ func TestRegisterModel(t *testing.T) {
 	// section VII
 
 	ops := []Operation{
-		{0, registerInput{false, 100}, 0, 0, 100},
-		{1, registerInput{true, 0}, 25, 100, 75},
-		{2, registerInput{true, 0}, 30, 0, 60},
+		{ClientId: 0, Input: registerInput{false, 100}, Call: 0, Output: 0, Return: 100},
+		{ClientId: 1, Input: registerInput{true, 0}, Call: 25, Output: 100, Return: 75},
+		{ClientId: 2, Input: registerInput{true, 0}, Call: 30, Output: 0, Return: 60},
 	}
 	res := CheckOperations(registerModel, ops)
 	if res != true {
@@ -61,12 +61,12 @@ func TestRegisterModel(t *testing.T) {
 
 	// same example as above, but with Event
 	events := []Event{
-		{0, CallEvent, registerInput{false, 100}, 0},
-		{1, CallEvent, registerInput{true, 0}, 1},
-		{2, CallEvent, registerInput{true, 0}, 2},
-		{2, ReturnEvent, 0, 2},
-		{1, ReturnEvent, 100, 1},
-		{0, ReturnEvent, 0, 0},
+		{ClientId: 0, Kind: CallEvent, Value: registerInput{false, 100}, Id: 0},
+		{ClientId: 1, Kind: CallEvent, Value: registerInput{true, 0}, Id: 1},
+		{ClientId: 2, Kind: CallEvent, Value: registerInput{true, 0}, Id: 2},
+		{ClientId: 2, Kind: ReturnEvent, Value: 0, Id: 2},
+		{ClientId: 1, Kind: ReturnEvent, Value: 100, Id: 1},
+		{ClientId: 0, Kind: ReturnEvent, Value: 0, Id: 0},
 	}
 	res = CheckEvents(registerModel, events)
 	if res != true {
@@ -74,9 +74,9 @@ func TestRegisterModel(t *testing.T) {
 	}
 
 	ops = []Operation{
-		{0, registerInput{false, 200}, 0, 0, 100},
-		{1, registerInput{true, 0}, 10, 200, 30},
-		{2, registerInput{true, 0}, 40, 0, 90},
+		{ClientId: 0, Input: registerInput{false, 200}, Call: 0, Output: 0, Return: 100},
+		{ClientId: 1, Input: registerInput{true, 0}, Call: 10, Output: 200, Return: 30},
+		{ClientId: 2, Input: registerInput{true, 0}, Call: 40, Output: 0, Return: 90},
 	}
 	res = CheckOperations(registerModel, ops)
 	if res != false {
@@ -85,12 +85,12 @@ func TestRegisterModel(t *testing.T) {
 
 	// same example as above, but with Event
 	events = []Event{
-		{0, CallEvent, registerInput{false, 200}, 0},
-		{1, CallEvent, registerInput{true, 0}, 1},
-		{1, ReturnEvent, 200, 1},
-		{2, CallEvent, registerInput{true, 0}, 2},
-		{2, ReturnEvent, 0, 2},
-		{0, ReturnEvent, 0, 0},
+		{ClientId: 0, Kind: CallEvent, Value: registerInput{false, 200}, Id: 0},
+		{ClientId: 1, Kind: CallEvent, Value: registerInput{true, 0}, Id: 1},
+		{ClientId: 1, Kind: ReturnEvent, Value: 200, Id: 1},
+		{ClientId: 2, Kind: CallEvent, Value: registerInput{true, 0}, Id: 2},
+		{ClientId: 2, Kind: ReturnEvent, Value: 0, Id: 2},
+		{ClientId: 0, Kind: ReturnEvent, Value: 0, Id: 0},
 	}
 	res = CheckEvents(registerModel, events)
 	if res != false {
@@ -100,10 +100,10 @@ func TestRegisterModel(t *testing.T) {
 
 func TestZeroDuration(t *testing.T) {
 	ops := []Operation{
-		{0, registerInput{false, 100}, 0, 0, 100},
-		{1, registerInput{true, 0}, 25, 100, 75},
-		{2, registerInput{true, 0}, 30, 0, 30},
-		{3, registerInput{true, 0}, 30, 0, 30},
+		{ClientId: 0, Input: registerInput{false, 100}, Call: 0, Output: 0, Return: 100},
+		{ClientId: 1, Input: registerInput{true, 0}, Call: 25, Output: 100, Return: 75},
+		{ClientId: 2, Input: registerInput{true, 0}, Call: 30, Output: 0, Return: 30},
+		{ClientId: 3, Input: registerInput{true, 0}, Call: 30, Output: 0, Return: 30},
 	}
 	res, info := CheckOperationsVerbose(registerModel, ops, 0)
 	if res != Ok {
@@ -113,10 +113,10 @@ func TestZeroDuration(t *testing.T) {
 	visualizeTempFile(t, registerModel, info)
 
 	ops = []Operation{
-		{0, registerInput{false, 200}, 0, 0, 100},
-		{1, registerInput{true, 0}, 10, 200, 10},
-		{2, registerInput{true, 0}, 10, 200, 10},
-		{3, registerInput{true, 0}, 40, 0, 90},
+		{ClientId: 0, Input: registerInput{false, 200}, Call: 0, Output: 0, Return: 100},
+		{ClientId: 1, Input: registerInput{true, 0}, Call: 10, Output: 200, Return: 10},
+		{ClientId: 2, Input: registerInput{true, 0}, Call: 10, Output: 200, Return: 10},
+		{ClientId: 3, Input: registerInput{true, 0}, Call: 40, Output: 0, Return: 90},
 	}
 	res, _ = CheckOperationsVerbose(registerModel, ops, 0)
 	if res != Illegal {
@@ -228,14 +228,14 @@ func parseJepsenLog(filename string) []Event {
 		case invokeRead.MatchString(line):
 			args := invokeRead.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
-			events = append(events, Event{proc, CallEvent, etcdInput{op: 0}, id})
+			events = append(events, Event{ClientId: proc, Kind: CallEvent, Value: etcdInput{op: 0}, Id: id})
 			procIdMap[proc] = id
 			id++
 		case invokeWrite.MatchString(line):
 			args := invokeWrite.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
 			value, _ := strconv.Atoi(args[2])
-			events = append(events, Event{proc, CallEvent, etcdInput{op: 1, arg1: value}, id})
+			events = append(events, Event{ClientId: proc, Kind: CallEvent, Value: etcdInput{op: 1, arg1: value}, Id: id})
 			procIdMap[proc] = id
 			id++
 		case invokeCas.MatchString(line):
@@ -243,7 +243,7 @@ func parseJepsenLog(filename string) []Event {
 			proc, _ := strconv.Atoi(args[1])
 			from, _ := strconv.Atoi(args[2])
 			to, _ := strconv.Atoi(args[3])
-			events = append(events, Event{proc, CallEvent, etcdInput{op: 2, arg1: from, arg2: to}, id})
+			events = append(events, Event{ClientId: proc, Kind: CallEvent, Value: etcdInput{op: 2, arg1: from, arg2: to}, Id: id})
 			procIdMap[proc] = id
 			id++
 		case returnRead.MatchString(line):
@@ -257,19 +257,19 @@ func parseJepsenLog(filename string) []Event {
 			}
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
-			events = append(events, Event{proc, ReturnEvent, etcdOutput{exists: exists, value: value}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: etcdOutput{exists: exists, value: value}, Id: matchId})
 		case returnWrite.MatchString(line):
 			args := returnWrite.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
-			events = append(events, Event{proc, ReturnEvent, etcdOutput{}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: etcdOutput{}, Id: matchId})
 		case returnCas.MatchString(line):
 			args := returnCas.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
-			events = append(events, Event{proc, ReturnEvent, etcdOutput{ok: args[2] == "ok"}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: etcdOutput{ok: args[2] == "ok"}, Id: matchId})
 		case timeoutRead.MatchString(line):
 			// timing out a read and then continuing operations is fine
 			// we could just delete the read from the events, but we do this the lazy way
@@ -278,12 +278,12 @@ func parseJepsenLog(filename string) []Event {
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
 			// okay to put the return here in the history
-			events = append(events, Event{proc, ReturnEvent, etcdOutput{unknown: true}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: etcdOutput{unknown: true}, Id: matchId})
 		}
 	}
 
 	for proc, matchId := range procIdMap {
-		events = append(events, Event{proc, ReturnEvent, etcdOutput{unknown: true}, matchId})
+		events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: etcdOutput{unknown: true}, Id: matchId})
 	}
 
 	return events
@@ -1287,19 +1287,19 @@ func parseKvLog(filename string) []Event {
 		case invokeGet.MatchString(line):
 			args := invokeGet.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
-			events = append(events, Event{proc, CallEvent, kvInput{op: 0, key: args[2]}, id})
+			events = append(events, Event{ClientId: proc, Kind: CallEvent, Value: kvInput{op: 0, key: args[2]}, Id: id})
 			procIdMap[proc] = id
 			id++
 		case invokePut.MatchString(line):
 			args := invokePut.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
-			events = append(events, Event{proc, CallEvent, kvInput{op: 1, key: args[2], value: args[3]}, id})
+			events = append(events, Event{ClientId: proc, Kind: CallEvent, Value: kvInput{op: 1, key: args[2], value: args[3]}, Id: id})
 			procIdMap[proc] = id
 			id++
 		case invokeAppend.MatchString(line):
 			args := invokeAppend.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
-			events = append(events, Event{proc, CallEvent, kvInput{op: 2, key: args[2], value: args[3]}, id})
+			events = append(events, Event{ClientId: proc, Kind: CallEvent, Value: kvInput{op: 2, key: args[2], value: args[3]}, Id: id})
 			procIdMap[proc] = id
 			id++
 		case returnGet.MatchString(line):
@@ -1307,24 +1307,24 @@ func parseKvLog(filename string) []Event {
 			proc, _ := strconv.Atoi(args[1])
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
-			events = append(events, Event{proc, ReturnEvent, kvOutput{args[2]}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: kvOutput{args[2]}, Id: matchId})
 		case returnPut.MatchString(line):
 			args := returnPut.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
-			events = append(events, Event{proc, ReturnEvent, kvOutput{}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: kvOutput{}, Id: matchId})
 		case returnAppend.MatchString(line):
 			args := returnAppend.FindStringSubmatch(line)
 			proc, _ := strconv.Atoi(args[1])
 			matchId := procIdMap[proc]
 			delete(procIdMap, proc)
-			events = append(events, Event{proc, ReturnEvent, kvOutput{}, matchId})
+			events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: kvOutput{}, Id: matchId})
 		}
 	}
 
 	for proc, matchId := range procIdMap {
-		events = append(events, Event{proc, ReturnEvent, kvOutput{}, matchId})
+		events = append(events, Event{ClientId: proc, Kind: ReturnEvent, Value: kvOutput{}, Id: matchId})
 	}
 
 	return events
@@ -1502,12 +1502,12 @@ func TestSetModel(t *testing.T) {
 	}
 
 	events := []Event{
-		{0, CallEvent, setInput{true, 100}, 0},
-		{1, CallEvent, setInput{true, 0}, 1},
-		{2, CallEvent, setInput{false, 0}, 2},
-		{2, ReturnEvent, setOutput{[]int{100}, false}, 2},
-		{1, ReturnEvent, setOutput{}, 1},
-		{0, ReturnEvent, setOutput{}, 0},
+		{ClientId: 0, Kind: CallEvent, Value: setInput{true, 100}, Id: 0},
+		{ClientId: 1, Kind: CallEvent, Value: setInput{true, 0}, Id: 1},
+		{ClientId: 2, Kind: CallEvent, Value: setInput{false, 0}, Id: 2},
+		{ClientId: 2, Kind: ReturnEvent, Value: setOutput{[]int{100}, false}, Id: 2},
+		{ClientId: 1, Kind: ReturnEvent, Value: setOutput{}, Id: 1},
+		{ClientId: 0, Kind: ReturnEvent, Value: setOutput{}, Id: 0},
 	}
 	res := CheckEvents(setModel, events)
 	if res != true {
@@ -1515,12 +1515,12 @@ func TestSetModel(t *testing.T) {
 	}
 
 	events = []Event{
-		{0, CallEvent, setInput{true, 100}, 0},
-		{1, CallEvent, setInput{true, 110}, 1},
-		{2, CallEvent, setInput{false, 0}, 2},
-		{2, ReturnEvent, setOutput{[]int{100, 110}, false}, 2},
-		{1, ReturnEvent, setOutput{}, 1},
-		{0, ReturnEvent, setOutput{}, 0},
+		{ClientId: 0, Kind: CallEvent, Value: setInput{true, 100}, Id: 0},
+		{ClientId: 1, Kind: CallEvent, Value: setInput{true, 110}, Id: 1},
+		{ClientId: 2, Kind: CallEvent, Value: setInput{false, 0}, Id: 2},
+		{ClientId: 2, Kind: ReturnEvent, Value: setOutput{[]int{100, 110}, false}, Id: 2},
+		{ClientId: 1, Kind: ReturnEvent, Value: setOutput{}, Id: 1},
+		{ClientId: 0, Kind: ReturnEvent, Value: setOutput{}, Id: 0},
 	}
 	res = CheckEvents(setModel, events)
 	if res != true {
@@ -1528,12 +1528,12 @@ func TestSetModel(t *testing.T) {
 	}
 
 	events = []Event{
-		{0, CallEvent, setInput{true, 100}, 0},
-		{1, CallEvent, setInput{true, 110}, 1},
-		{2, CallEvent, setInput{false, 0}, 2},
-		{2, ReturnEvent, setOutput{[]int{}, true}, 2},
-		{1, ReturnEvent, setOutput{}, 1},
-		{0, ReturnEvent, setOutput{}, 0},
+		{ClientId: 0, Kind: CallEvent, Value: setInput{true, 100}, Id: 0},
+		{ClientId: 1, Kind: CallEvent, Value: setInput{true, 110}, Id: 1},
+		{ClientId: 2, Kind: CallEvent, Value: setInput{false, 0}, Id: 2},
+		{ClientId: 2, Kind: ReturnEvent, Value: setOutput{[]int{}, true}, Id: 2},
+		{ClientId: 1, Kind: ReturnEvent, Value: setOutput{}, Id: 1},
+		{ClientId: 0, Kind: ReturnEvent, Value: setOutput{}, Id: 0},
 	}
 	res = CheckEvents(setModel, events)
 	if res != true {
@@ -1541,12 +1541,12 @@ func TestSetModel(t *testing.T) {
 	}
 
 	events = []Event{
-		{0, CallEvent, setInput{true, 100}, 0},
-		{1, CallEvent, setInput{true, 110}, 1},
-		{2, CallEvent, setInput{false, 0}, 2},
-		{2, ReturnEvent, setOutput{[]int{100, 100, 110}, false}, 2},
-		{1, ReturnEvent, setOutput{}, 1},
-		{0, ReturnEvent, setOutput{}, 0},
+		{ClientId: 0, Kind: CallEvent, Value: setInput{true, 100}, Id: 0},
+		{ClientId: 1, Kind: CallEvent, Value: setInput{true, 110}, Id: 1},
+		{ClientId: 2, Kind: CallEvent, Value: setInput{false, 0}, Id: 2},
+		{ClientId: 2, Kind: ReturnEvent, Value: setOutput{[]int{100, 100, 110}, false}, Id: 2},
+		{ClientId: 1, Kind: ReturnEvent, Value: setOutput{}, Id: 1},
+		{ClientId: 0, Kind: ReturnEvent, Value: setOutput{}, Id: 0},
 	}
 	res = CheckEvents(setModel, events)
 	if res == true {
