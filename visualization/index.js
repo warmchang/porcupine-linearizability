@@ -98,7 +98,7 @@ function render(data) {
 
   // Add synthetic client numbers
   const tag2ClientId = {}
-  const sortedTags = [...tags].sort()
+  const sortedTags = [...tags].toSorted()
   for (const tag of sortedTags) {
     maxClient += 1
     tag2ClientId[tag] = maxClient
@@ -137,7 +137,7 @@ function render(data) {
     }
   }
 
-  let sortedTimestamps = [...allTimestamps].sort((a, b) => a - b)
+  let sortedTimestamps = [...allTimestamps].toSorted((a, b) => a - b)
 
   // If one event has the same end time as another's start time, that means that
   // they are concurrent, and we need to display them with overlap. We do this
@@ -208,7 +208,7 @@ function render(data) {
   }
 
   // Update sortedTimestamps, because we created some new timestamps.
-  sortedTimestamps = [...allTimestamps].sort((a, b) => a - b)
+  sortedTimestamps = [...allTimestamps].toSorted((a, b) => a - b)
 
   // Compute layout.
   //
@@ -269,7 +269,7 @@ function render(data) {
         }
       })
     )
-    .sort((a, b) => a.end - b.end)
+    .toSorted((a, b) => a.end - b.end)
   // Some preprocessing for linearization points and illegal next
   // linearizations. We need to figure out where exactly LPs end up
   // as we go, so we can make sure event boxes are wide enough.
@@ -657,11 +657,7 @@ function render(data) {
   function highlight(partition, index) {
     // Hide all but this partition
     for (const [i, layer] of historyLayers.entries()) {
-      if (i === partition) {
-        layer.classList.remove('hidden')
-      } else {
-        layer.classList.add('hidden')
-      }
+      layer.classList.toggle('hidden', i !== partition)
     }
 
     // Hide all but the relevant linearization
@@ -797,11 +793,7 @@ function render(data) {
     // Show longest linearizations, which are first
     for (const layers of partialLayers) {
       for (const [i, l] of layers.entries()) {
-        if (i === 0) {
-          l.classList.remove('hidden')
-        } else {
-          l.classList.add('hidden')
-        }
+        l.classList.toggle('hidden', i !== 0)
       }
     }
 
